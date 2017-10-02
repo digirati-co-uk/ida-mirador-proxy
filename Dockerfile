@@ -2,7 +2,9 @@ FROM centos
 
 RUN yum -y update
 
-RUN yum -y install epel-release 
+RUN yum -y install epel-release
+
+RUN yum -y install gcc
 
 RUN yum -y install python-pip
 
@@ -37,17 +39,10 @@ RUN mkdir /opt/mirador-proxy/
 
 RUN cp -r ./build/ /opt/mirador-proxy/
 
-WORKDIR /opt/
-
-RUN git clone https://github.com/digirati-co-uk/ida-mirador-proxy.git
-
-WORKDIR /opt/ida-mirador-proxy/
-
 RUN pip install --upgrade pip
 
 RUN pip install uwsgi
 
-RUN pip install -r requirements.txt
 
 COPY *.py /opt/mirador-proxy/
 
@@ -55,7 +50,12 @@ COPY *.html /opt/mirador-proxy/
 
 COPY *.sh /opt/mirador-proxy/
 
+COPY *.txt /opt/mirador-proxy/
+
 WORKDIR /opt/mirador-proxy/
+
+RUN pip install -r requirements.txt
+
 
 # CMD ./run_mirador.sh
 
