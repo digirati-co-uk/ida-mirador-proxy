@@ -6,6 +6,8 @@ RUN yum -y install epel-release
 
 RUN yum -y install python-pip
 
+RUN yum -y install python-devel
+
 RUN yum -y install nodejs 
 
 RUN yum -y install npm 
@@ -40,6 +42,10 @@ WORKDIR /opt/
 RUN git clone https://github.com/digirati-co-uk/ida-mirador-proxy.git
 
 WORKDIR /opt/ida-mirador-proxy/
+
+RUN pip install --upgrade pip
+
+RUN pip install uwsgi
 
 RUN pip install -r requirements.txt
 
