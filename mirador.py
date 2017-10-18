@@ -81,6 +81,12 @@ def rewrite_othercontent(manifest_json, new_brilleaux_base='https://mcgrattan.or
                                            'label': 'Named Entity Extraction Annotations',
                                            '@id': new_brilleaux_base +
                                            hashlib.md5(canvas['@id']).hexdigest() + '/'}]
+        else:
+            # add rewritten Brilleaux service
+            canvas['otherContent'] = [{'@type': 'sc:AnnotationList',
+                                       'label': 'Named Entity Extraction Annotations',
+                                       '@id': new_brilleaux_base +
+                                       hashlib.md5(canvas['@id']).hexdigest() + '/'}]
     print(os.getcwd())
     filename = hashlib.md5(manifest_json['@id']).hexdigest() + '.json'
     filepath = os.path.join(os.getcwd(), filename)
@@ -141,18 +147,19 @@ def mirador():
             manifest = request.args.get('manifest', default=None, type=str)
             canvas = request.args.get('canvas', default=None, type=str)
             if manifest:
-                if not canvas:
                     m = requests.get(manifest)
                     if m.status_code == requests.codes.ok:
                         manifest_json = m.json()
                         filename, filepath = rewrite_othercontent(manifest_json)
                         manifest_location = request.url_root + 'manifest/' + filename
+                        manifest_location = manifest_location.replace('http://', 'https://')
                         print(manifest_location)
-                        try:
-                            canvas = manifest_json['sequences'][0]['canvases'][0]['@id']
-                            print(canvas)
-                        except KeyError:
-                            flask.abort(500)
+                        if not canvas:
+                            try:
+                                canvas = manifest_json['sequences'][0]['canvases'][0]['@id']
+                                print(canvas)
+                            except KeyError:
+                                flask.abort(500)
                     else:
                         flask.abort(404)
             template_result = t.render(manifest_uri=manifest_location, canvas_uri=canvas)
