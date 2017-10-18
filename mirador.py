@@ -4,7 +4,7 @@ from functools import update_wrapper
 
 import flask
 import requests
-from flask import make_response, request, current_app, send_from_directory
+from flask import make_response, request, current_app, send_from_directory, jsonify
 from flask_cache import Cache
 from jinja2 import Template
 import json
@@ -100,7 +100,16 @@ def send_js(path):
 
 @app.route('/manifest/<path:path>')
 def send_manifest(path):
-    return send_from_directory(os.getcwd(), path)
+    try:
+        jf = os.path.join(os.getcwd(), path)
+        with open(jf, 'r') as json_file:
+            manifest_json = json.load(json_file)
+            if manifest_json:
+                return jsonify(manifest_json)
+            else:
+                flask.abort(404)
+    except:
+        flask.abort(500)
 
 
 @app.route('/mirador', methods=['GET'])
