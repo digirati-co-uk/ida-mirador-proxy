@@ -1,10 +1,14 @@
+import hashlib
+from datetime import timedelta
+from functools import update_wrapper
+
 import flask
 import requests
-from jinja2 import Template
-from datetime import timedelta
 from flask import make_response, request, current_app, send_from_directory
-from functools import update_wrapper
 from flask_cache import Cache
+from jinja2 import Template
+import json
+import os
 import mirador_settings
 
 print('Cache timeout', mirador_settings.cache_timeout)
@@ -57,12 +61,46 @@ def cache_key():
     return request.url
 
 
+def rewrite_othercontent(manifest_json, new_brilleaux_base='https://mcgrattan.org/annotationlist/'):
+    for canvas in manifest_json['sequences'][0]['canvases']:
+        if 'otherContent' in canvas:
+            if isinstance(canvas['otherContent'], list):
+                try:  # remove existing Brilleaux service from the list.
+                    canvas['otherContent'] = [o for o in canvas['otherContent']
+                                              if o['label'] != 'Named Entity Extraction Annotations']
+                except:
+                    pass
+                # add rewritten Brilleaux service
+                canvas['otherContent'].append({'@type': 'sc:AnnotationList',
+                                               'label': 'Named Entity Extraction Annotations',
+                                               '@id': new_brilleaux_base +
+                                               hashlib.md5(canvas['@id']).hexdigest() + '/'})
+            else:
+                # add rewritten Brilleaux service
+                canvas['otherContent'] = [{'@type': 'sc:AnnotationList',
+                                           'label': 'Named Entity Extraction Annotations',
+                                           '@id': new_brilleaux_base +
+                                           hashlib.md5(canvas['@id']).hexdigest() + '/'}]
+    print(os.getcwd())
+    filename = hashlib.md5(manifest_json['@id']).hexdigest() + '.json'
+    filepath = os.path.join(os.getcwd(), filename)
+    with open(filepath, 'w') as manifest_file:
+        json.dump(manifest_json, manifest_file, indent=4)
+    return filename, filepath
+
+
 app = flask.Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': './'})
+
 
 @app.route('/build/<path:path>')
 def send_js(path):
     return send_from_directory('build', path)
+
+
+@app.route('/manifest/<path:path>')
+def send_manifest(path):
+    return send_from_directory(os.getcwd(), path)
 
 
 @app.route('/mirador', methods=['GET'])
@@ -98,6 +136,9 @@ def mirador():
                     m = requests.get(manifest)
                     if m.status_code == requests.codes.ok:
                         manifest_json = m.json()
+                        filename, filepath = rewrite_othercontent(manifest_json)
+                        manifest_location = request.url_root + 'manifest/' + filename
+                        print(manifest_location)
                         try:
                             canvas = manifest_json['sequences'][0]['canvases'][0]['@id']
                             print(canvas)
@@ -105,7 +146,7 @@ def mirador():
                             flask.abort(500)
                     else:
                         flask.abort(404)
-            template_result = t.render(manifest_uri=manifest, canvas_uri=canvas)
+            template_result = t.render(manifest_uri=manifest_location, canvas_uri=canvas)
             return flask.Response(template_result)
     else:
         flask.abort(500)
