@@ -36,11 +36,8 @@ RUN grunt
 
 
 RUN mkdir /opt/mirador-proxy/
+RUN cp -r ./build/mirador/ /opt/mirador-proxy/
 
-RUN cp -r ./build/ /opt/mirador-proxy/
-RUN cp -r ./locales/ /opt/mirador-proxy/
-RUN cp -r ./images/ /opt/mirador-proxy/
-RUN cp -r . /opt/mirador-proxy/
 
 RUN pip install --upgrade pip
 

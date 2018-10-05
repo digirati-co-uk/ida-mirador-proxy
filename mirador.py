@@ -1,7 +1,7 @@
 import flask
 import requests
 from jinja2 import Template
-from flask import request, send_from_directory
+from flask import request, send_from_directory, url_for
 from flask_cache import Cache
 import mirador_settings
 from flask_cors import CORS
@@ -11,24 +11,14 @@ def cache_key():
     return request.url
 
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_folder="mirador")
 CORS(app)
 cache = Cache(app, config={"CACHE_TYPE": "filesystem", "CACHE_DIR": "./"})
 
 
-@app.route("/build/<path:path>")
-def send_js(path):
-    return send_from_directory("build", path)
-
-
-@app.route("/locales/<path:path>")
-def send_locale(path):
-    return send_from_directory("locales", path)
-
-
-@app.route("/images/<path:path>")
-def send_images(path):
-    return send_from_directory("images", path)
+@app.route('/<path:filename>')
+def send_file(filename):
+    return send_from_directory(app.static_folder, filename)
 
 
 @app.route("/mirador", methods=["GET"])
@@ -59,7 +49,9 @@ def mirador():
                             flask.abort(500)
                     else:
                         flask.abort(404)
-            template_result = t.render(manifest_uri=manifest, canvas_uri=canvas)
+            css_uri = url_for('static', filename='css/mirador-combined.css')
+            min_js_uri = url_for('static', filename='mirador.min.js')
+            template_result = t.render(manifest_uri=manifest, canvas_uri=canvas, css=css_uri, min=min_js_uri)
             return flask.Response(template_result)
     else:
         flask.abort(500)
