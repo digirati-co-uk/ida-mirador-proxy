@@ -34,15 +34,13 @@ RUN bower --allow-root install
 
 RUN grunt
 
-
 RUN mkdir /opt/mirador-proxy/
-RUN cp -r ./build/mirador/ /opt/mirador-proxy/
 
+RUN cp -r ./build/ /opt/mirador-proxy/
 
 RUN pip install --upgrade pip
 
 RUN pip install uwsgi
-
 
 COPY *.py /opt/mirador-proxy/
 
@@ -55,9 +53,6 @@ COPY *.txt /opt/mirador-proxy/
 WORKDIR /opt/mirador-proxy/
 
 RUN pip install -r requirements.txt
-
-
-# CMD ./run_mirador.sh
 
 # Expose port 8000 for uwsgi
 

@@ -11,7 +11,7 @@ def cache_key():
     return request.url
 
 
-app = flask.Flask(__name__, static_folder="mirador")
+app = flask.Flask(__name__, static_folder="build")
 CORS(app)
 cache = Cache(app, config={"CACHE_TYPE": "filesystem", "CACHE_DIR": "./"})
 
@@ -49,8 +49,8 @@ def mirador():
                             flask.abort(500)
                     else:
                         flask.abort(404)
-            css_uri = url_for('static', filename='css/mirador-combined.css')
-            min_js_uri = url_for('static', filename='mirador.min.js')
+            css_uri = url_for('static', filename='mirador/css/mirador-combined.css')
+            min_js_uri = url_for('static', filename='mirador/mirador.min.js')
             template_result = t.render(manifest_uri=manifest, canvas_uri=canvas, css=css_uri, min=min_js_uri)
             return flask.Response(template_result)
     else:
