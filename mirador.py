@@ -2,7 +2,7 @@ import flask
 import requests
 from jinja2 import Template
 from flask import request, send_from_directory, url_for
-from flask_cache import Cache
+from flask_caching import Cache
 import mirador_settings
 from flask_cors import CORS
 

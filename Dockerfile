@@ -1,24 +1,8 @@
-FROM centos
+FROM python:3-alpine
 
-RUN yum -y update
+RUN apk add --update python3-dev build-base linux-headers pcre-dev uwsgi-python3 nodejs npm git
 
-RUN yum -y install epel-release
-
-RUN yum -y install gcc
-
-RUN yum -y install python-pip
-
-RUN yum -y install python-devel
-
-RUN yum -y install nodejs 
-
-RUN yum -y install npm 
-
-RUN yum -y install git
-
-RUN yum -y install bzip2
-
-RUN npm install -g bower 
+RUN npm install -g bower
 
 RUN npm install -g grunt
 
@@ -38,9 +22,9 @@ RUN mkdir /opt/mirador-proxy/
 
 RUN cp -r ./build/ /opt/mirador-proxy/
 
-RUN pip install --upgrade pip
+RUN pip3 install --upgrade pip
 
-RUN pip install uwsgi
+RUN pip3 install uwsgi
 
 COPY *.py /opt/mirador-proxy/
 
@@ -52,10 +36,16 @@ COPY *.txt /opt/mirador-proxy/
 
 WORKDIR /opt/mirador-proxy/
 
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Expose port 8000 for uwsgi
 
 EXPOSE 8000
 
-ENTRYPOINT ["uwsgi", "--http", "0.0.0.0:8000", "--module", "mirador:app", "--processes", "1", "--threads", "8"]
+ENTRYPOINT ["uwsgi", "--http", "0.0.0.0:8000", \
+            "--uid", "uwsgi", \
+               "--protocol", "uwsgi", \
+               "--enable-threads", \
+               "--master", \
+               "--http-timeout", "600", \
+               "--module", "mirador:app", "--processes", "1", "--threads", "8"]
