@@ -20,6 +20,8 @@ RUN grunt
 
 RUN mkdir /opt/mirador-proxy/
 
+RUN mkdir /opt/mirador-proxy/cache/
+
 RUN cp -r ./build/ /opt/mirador-proxy/
 
 RUN pip3 install --upgrade pip
@@ -29,8 +31,6 @@ RUN pip3 install uwsgi
 COPY *.py /opt/mirador-proxy/
 
 COPY *.html /opt/mirador-proxy/
-
-COPY *.sh /opt/mirador-proxy/
 
 COPY *.txt /opt/mirador-proxy/
 
