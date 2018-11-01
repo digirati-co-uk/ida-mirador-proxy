@@ -1,7 +1,7 @@
 import flask
 import requests
 from jinja2 import Template
-from flask import request, send_from_directory, url_for
+from flask import request, send_from_directory
 from flask_caching import Cache
 import mirador_settings
 from flask_cors import CORS
@@ -18,7 +18,7 @@ CORS(app)
 cache = Cache(app, config={"CACHE_TYPE": "filesystem", "CACHE_DIR": "./cache/"})
 
 
-@app.route('/<path:filename>')
+@app.route("/<path:filename>")
 def send_file(filename):
     return send_from_directory(app.static_folder, filename)
 
@@ -45,26 +45,26 @@ def mirador():
                 if m.status_code == requests.codes.ok:
                     manifest_json = m.json()
                 else:
-                    logging.error('The manifest request returned %s', m.status_code)
+                    logging.error("The manifest request returned %s", m.status_code)
                     flask.abort(m.status_code)
                 if not canvas:
                     if manifest_json:
                         try:
-                            logging.debug('Using first canvas by default.')
+                            logging.debug("Using first canvas by default.")
                             canvas = manifest_json["sequences"][0]["canvases"][0]["@id"]
                         except KeyError:
-                            logging.error('Could not identify first canvas in manifest')
+                            logging.error("Could not identify first canvas in manifest")
                             flask.abort(500)
                     else:
-                        logging.error('No manifest available.')
+                        logging.error("No manifest available.")
                         flask.abort(404)
             template_result = t.render(manifest_uri=manifest, canvas_uri=canvas)
             return flask.Response(template_result)
         else:
-            logging.error('Unsupported HTTP method.')
+            logging.error("Unsupported HTTP method.")
             flask.abort(405)
     else:
-        logging.error('Could not find JINJA2 template.')
+        logging.error("Could not find JINJA2 template.")
         flask.abort(500)
 
 
