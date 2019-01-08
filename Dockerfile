@@ -42,10 +42,11 @@ RUN pip3 install -r requirements.txt
 
 EXPOSE 8000
 
-ENTRYPOINT ["uwsgi", "--http", "0.0.0.0:8000", \
-            "--uid", "uwsgi", \
+CMD [ "uwsgi", "--http", "0.0.0.0:8000", \
+               "--uid", "uwsgi", \
                "--protocol", "uwsgi", \
                "--enable-threads", \
                "--master", \
                "--http-timeout", "600", \
-               "--module", "mirador:app", "--processes", "1", "--threads", "8"]
+               "--lazy", \
+               "--module", "mirador:app" ]
