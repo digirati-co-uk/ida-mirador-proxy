@@ -16,7 +16,7 @@
 <body>
 <div id="viewer"></div>
 
-<script src="build/mirador/mirador.min.js"></script>
+<script src="build/mirador/mirador.js"></script>
 <script type="text/javascript">
 
     $(function () {
@@ -26,7 +26,7 @@
             "id": "viewer",
             "layout": "1x1",
             "data": [
-                {"manifestUri": "{{manifest_uri}}", "location": "IDA"}
+                {"manifestUri": "{{manifest_uri}}"}
             ],
             "windowObjects": [{
                 loadedManifest: "{{manifest_uri}}",
