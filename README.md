@@ -1,4 +1,4 @@
-# ida-mirador-proxy
+# IDA Mirador Proxy
 Lightweight flask app to serve manifests via Mirador. The app accepts a manifest and (optional) canvas parameter to automatically load a specific manifest into an instance of the latest Mirador.
 
 The Dockerfile will build Mirador as part of the build process.
